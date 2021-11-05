@@ -9,12 +9,19 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^4.3.2",
+    "hardhat": "^2.6.7",
     "next": "12.0.1",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.0",
+    "@nomiclabs/hardhat-waffle": "^2.0.0",
+    "chai": "^4.2.0",
     "eslint": "7",
-    "eslint-config-next": "12.0.1"
+    "eslint-config-next": "12.0.1",
+    "ethereum-waffle": "^3.0.0",
+    "ethers": "^5.0.0"
   }
 }
