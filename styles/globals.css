@@ -31,3 +31,7 @@ a {
 .CodeMirror .cm-spell-error:not(.cm-url):not(.cm-comment):not(.cm-tag):not(.cm-word) {
   background-color: transparent !important;
 }
+
+pre {
+  padding: 20px;
+}

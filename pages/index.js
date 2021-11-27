@@ -1,25 +1,107 @@
 import { useEffect, useState } from 'react'
 import { css } from '@emotion/css'
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/router'
+import { ethers } from 'ethers'
+import Link from 'next/link'
+
+const contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
 
 export default function Home() {
+  const [posts, setPosts] = useState(null)
+  useEffect(() => {
+    fetchPosts()
+  }, [])
   const router = useRouter()
   async function navigate() {
     router.push('/create-post')
   }
+  async function fetchPosts() {
+    const provider = new ethers.providers.JsonRpcProvider()
+    const contract = new ethers.Contract(contractAddress, Blog.abi, provider)
+    const data = await contract.fetchPosts()
+    setPosts(data)
+  }
   return (
-    <div className={container}>
-      <button className={buttonStyle} onClick={navigate}>
-        Create your first post
-        <img
-          src='/right-arrow.svg'
-          alt="Right arrow"
-          className={arrow}
-        />
-        </button>
+    <div>
+      <div className={titleContainer}>
+        <h2 className={titleStyle}>Posts</h2>
+      </div>
+      <div className={postList}>
+        {
+          posts && posts.length && posts.map((post, index) => (
+            <Link href={`/post/{post.id}`} key={index}>
+              <a>
+                <div className={linkStyle}>
+                  <p className={postTitle}>{post[1]}</p>
+                  <div className={arrowContainer}>
+                  <img
+                      src='/right-arrow.svg'
+                      alt="Right arrow"
+                      className={smallArrow}
+                    />
+                  </div>
+                </div>
+              </a>
+            </Link>
+          ))
+        }
+      </div>
+      <div className={container}>
+        {
+          posts && !posts.length && (
+            <button className={buttonStyle} onClick={navigate}>
+              Create your first post
+              <img
+                src='/right-arrow.svg'
+                alt="Right arrow"
+                className={arrow}
+              />
+            </button>
+          )
+        }
+      </div>
     </div>
   )
 }
+
+const titleContainer = css`
+  width: 900px;
+  margin: 0 auto;
+`
+
+const titleStyle = css`
+  font-size: 46px;
+  margin: 0;
+`
+
+const arrowContainer = css`
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  padding-right: 20px;
+`
+
+const postTitle = css`
+  font-size: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 0;
+  padding: 20px;
+`
+
+const linkStyle = css`
+  border: 1px solid #ddd;
+  margin-top: 20px;
+  border-radius: 8px;
+  display: flex;
+`
+
+const postList = css`
+  width: 700px;
+  margin: 0 auto;
+  padding-top: 50px;  
+`
 
 const container = css`
   display: flex;
@@ -41,4 +123,8 @@ const buttonStyle = css`
 const arrow = css`
   width: 35px;
   margin-left: 30px;
+`
+
+const smallArrow = css`
+  width: 25px;
 `

@@ -52,9 +52,13 @@ function MyApp({ Component, pageProps }) {
               </div>
             </a>
           </Link>
-          <div>
-            <button onClick={connect}>Connect</button>
-          </div>
+          {
+            !account && (
+              <div className={buttonContainer}>
+                <button className={buttonStyle} onClick={connect}>Connect</button>
+              </div>
+            )
+          }
         </div>
         <div className={linkContainer}>
           <Link href="/" >
@@ -112,6 +116,23 @@ const title = css`
   margin: 0;
 `
 
+const buttonContainer = css`
+  width: 100%;
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+`
+
+const buttonStyle = css`
+  background-color: #fafafa;
+  outline: none;
+  border: none;
+  font-size: 18px;
+  padding: 16px 70px;
+  border-radius: 15px;
+  cursor: pointer;
+  box-shadow: 7px 7px rgba(0, 0, 0, .1);
+`
 
 const link = css`
   margin: 0px 40px 0px 0px;

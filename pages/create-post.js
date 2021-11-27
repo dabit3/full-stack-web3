@@ -10,7 +10,7 @@ import Arweave from 'arweave'
 
 const arweave = Arweave.init({});
 
-const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+const contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
 import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
 
 // Or to specify a gateway you might use
@@ -39,7 +39,7 @@ function CreatePost(props) {
   useEffect(() => {
     setTimeout(() => {
       setLoaded(true)
-    }, 100)
+    }, 1000)
   }, [])
 
   async function savePost(hash) {
@@ -138,7 +138,7 @@ function CreatePost(props) {
             className={button}
             type="button"
             onClick={createNewPost}
-          >Create Post</button>
+          >Publish</button>
         )
       }
     </div>
@@ -162,7 +162,7 @@ const titleStyle = css`
 `
 
 const container = css`
-  width: 900px;
+  width: 800px;
   margin: 0 auto;
 `
 
@@ -170,11 +170,11 @@ const button = css`
   background-color: #fafafa;
   outline: none;
   border: none;
-  font-size: 16px;
-  padding: 10px 30px;
   border-radius: 15px;
   cursor: pointer;
   margin-right: 10px;
+  font-size: 18px;
+  padding: 16px 70px;
   box-shadow: 7px 7px rgba(0, 0, 0, .1);
 `
 
