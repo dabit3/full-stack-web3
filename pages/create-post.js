@@ -4,11 +4,21 @@ import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import "easymde/dist/easymde.min.css"
 import { css } from '@emotion/css'
+import { ethers } from 'ethers'
 
 import Arweave from 'arweave'
 
-/* connect to an Arweave node or specify a gateway  */
 const arweave = Arweave.init({});
+
+const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
+
+// Or to specify a gateway you might use
+// const arweave = Arweave.init({
+//   host: 'arweave.net',
+//   port: 443,
+//   protocol: 'https'
+// });
 
 const SimpleMDE = dynamic(
   () => import('react-simplemde-editor'),
@@ -17,7 +27,8 @@ const SimpleMDE = dynamic(
 
 const initialState = { title: '', content: '' }
 
-function CreatePost() {
+function CreatePost(props) {
+  console.log('props:', props)
   const [post, setPost] = useState(initialState)
   const [image, setImage] = useState(null)
   const hiddenFileInput = useRef(null)
@@ -31,6 +42,23 @@ function CreatePost() {
     }, 100)
   }, [])
 
+  async function savePost(hash) {
+    if (typeof window.ethereum !== 'undefined') {
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      const signer = provider.getSigner()
+      const contract = new ethers.Contract(contractAddress, Blog.abi, signer)
+      console.log('contract: ', contract)
+      try {
+        const val = await contract.createPost(post.title, hash)
+        console.log('val: ', val)
+        // const data = await contract.greet()
+        // console.log('data: ', data)
+      } catch (err) {
+        console.log("Error: ", err)
+      }
+    }    
+  }
+
   async function saveToArweave() {
     try {
       console.log('content: ', post.content)
@@ -40,11 +68,12 @@ function CreatePost() {
 
       while (!uploader.isComplete) {
         await uploader.uploadChunk()
-        // console.log(
-        //   `${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`,
-        // )
+        console.log(
+          `${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`,
+        )
       }
       console.log('transaction:', transaction)
+      await savePost(transaction.id)
     } catch (err) {
       console.log('error: ', err)
     }
