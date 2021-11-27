@@ -20,6 +20,7 @@ export default function Home() {
     const provider = new ethers.providers.JsonRpcProvider()
     const contract = new ethers.Contract(contractAddress, Blog.abi, provider)
     const data = await contract.fetchPosts()
+    console.log({ data })
     setPosts(data)
   }
   return (
@@ -30,7 +31,7 @@ export default function Home() {
       <div className={postList}>
         {
           posts && posts.length && posts.map((post, index) => (
-            <Link href={`/post/{post.id}`} key={index}>
+            <Link href={`/post/${post.items[0]}`} key={index}>
               <a>
                 <div className={linkStyle}>
                   <p className={postTitle}>{post[1]}</p>
