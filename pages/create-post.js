@@ -1,10 +1,14 @@
-import { useState, useRef, useMemo } from 'react' // new
+import { useState, useRef, useMemo, useEffect } from 'react' // new
 import { v4 as uuid } from 'uuid'
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import "easymde/dist/easymde.min.css"
 import { css } from '@emotion/css'
-import ReactMarkdown from 'react-markdown'
+
+import Arweave from 'arweave'
+
+/* connect to an Arweave node or specify a gateway  */
+const arweave = Arweave.init({});
 
 const SimpleMDE = dynamic(
   () => import('react-simplemde-editor'),
@@ -16,10 +20,35 @@ const initialState = { title: '', content: '' }
 function CreatePost() {
   const [post, setPost] = useState(initialState)
   const [image, setImage] = useState(null)
-  const [preview, setPreview] = useState(false)
-  const hiddenFileInput = useRef(null);
+  const hiddenFileInput = useRef(null)
+  const [loaded, setLoaded] = useState(false)
   const { title, content } = post
   const router = useRouter()
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoaded(true)
+    }, 100)
+  }, [])
+
+  async function saveToArweave() {
+    try {
+      console.log('content: ', post.content)
+      let transaction = await arweave.createTransaction({ data: post.content })
+      await arweave.transactions.sign(transaction)
+      let uploader = await arweave.transactions.getUploader(transaction)
+
+      while (!uploader.isComplete) {
+        await uploader.uploadChunk()
+        // console.log(
+        //   `${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`,
+        // )
+      }
+      console.log('transaction:', transaction)
+    } catch (err) {
+      console.log('error: ', err)
+    }
+  }
 
   const options = useMemo(() => {
     return {
@@ -31,6 +60,8 @@ function CreatePost() {
     setPost(() => ({ ...post, [e.target.name]: e.target.value }))
   }
   async function createNewPost() {
+    await saveToArweave()
+    return
     if (!title || !content) return
     const id = uuid() 
     post.id = id
@@ -41,7 +72,6 @@ function CreatePost() {
       await Storage.put(fileName, image)
     }
 
-    
     router.push(`/posts/${id}`)
   }
   async function uploadImage() {
@@ -54,7 +84,6 @@ function CreatePost() {
   }
   return (
     <div className={container}>
-      <button onClick={() => setPreview(!preview)}>Preview</button>
       <input
         onChange={onChange}
         name="title"
@@ -67,36 +96,22 @@ function CreatePost() {
           <img src={URL.createObjectURL(image)} />
         )
       }
-      {
-        preview && (
-          <ReactMarkdown children={post.content} />
-        )
-      }
-      {
-        !preview && (
-          <SimpleMDE
-          className={mdEditor}
-          placeholder="What's on your mind?"
-          value={post.content}
-          options={options}
-          onChange={value => setPost({ ...post, content: value })}
-        />
-        )
-      }
-      <input
-        type="file"
-        ref={hiddenFileInput}
-        onChange={handleChange}
+      <SimpleMDE
+        className={mdEditor}
+        placeholder="What's on your mind?"
+        value={post.content}
+        options={options}
+        onChange={value => setPost({ ...post, content: value })}
       />
-      <button
-        onClick={uploadImage}        
-      >
-        Upload Cover Image
-      </button>
-      <button
-        type="button"
-        onClick={createNewPost}
-      >Create Post</button>
+      {
+        loaded && (
+          <button
+            className={button}
+            type="button"
+            onClick={createNewPost}
+          >Create Post</button>
+        )
+      }
     </div>
   )
 }
@@ -120,6 +135,18 @@ const titleStyle = css`
 const container = css`
   width: 900px;
   margin: 0 auto;
+`
+
+const button = css`
+  background-color: #fafafa;
+  outline: none;
+  border: none;
+  font-size: 16px;
+  padding: 10px 30px;
+  border-radius: 15px;
+  cursor: pointer;
+  margin-right: 10px;
+  box-shadow: 7px 7px rgba(0, 0, 0, .1);
 `
 
 export default CreatePost

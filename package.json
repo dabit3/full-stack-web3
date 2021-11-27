@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/css": "^11.5.0",
     "@openzeppelin/contracts": "^4.3.2",
+    "arweave": "^1.10.18",
     "easymde": "^2.15.0",
     "hardhat": "^2.6.7",
     "next": "12.0.1",

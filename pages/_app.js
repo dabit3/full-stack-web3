@@ -7,15 +7,23 @@ function MyApp({ Component, pageProps }) {
     <div>
       <nav className={nav}>
         <div className={header}>
-          <img
-            src='/logo.svg'
-            alt="React Logo"
-            style={{ width: '50px' }}
-          />
-          <div className={titleContainer}>
-            <h2 className={title}>Full Stack</h2>
-            <p className={description}>WEB3</p>
-          </div>
+          <Link href="/">
+            <a>
+              <img
+                src='/logo.svg'
+                alt="React Logo"
+                style={{ width: '50px' }}
+              />
+            </a>
+          </Link>
+          <Link href="/">
+            <a>
+              <div className={titleContainer}>
+                <h2 className={title}>Full Stack</h2>
+                <p className={description}>WEB3</p>
+              </div>
+            </a>
+          </Link>
         </div>
         <div className={linkContainer}>
           <Link href="/" >
@@ -42,7 +50,7 @@ const container = css`
 `
 
 const linkContainer = css`
-  padding: 50px 60px;
+  padding: 30px 60px;
   background-color: #fafafa;
 `
 
