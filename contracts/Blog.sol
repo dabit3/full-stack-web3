@@ -19,6 +19,11 @@ contract Blog {
 
     mapping(uint => Post) private idToPost;
 
+    event PostCreated(uint id, string title, string hash);
+    event PostUpdated(uint id, string title);
+    event PostAdded(uint id, string hash);
+    event OwnershipUpdated(address newOwner);
+
     constructor(string memory _name) {
         console.log("Deploying Blog with name:", _name);
         name = _name;
@@ -45,6 +50,7 @@ contract Blog {
             items
         );
         post.items.push(hash);
+        emit PostCreated(postId, title, hash);
     }
 
     function updatePost(uint postId, string memory title) public {
@@ -52,12 +58,14 @@ contract Blog {
         Post storage post =  idToPost[postId];
         post.title = title;
         idToPost[postId] = post;
+        emit PostUpdated(post.id, post.title);
     }
 
     function addPost(uint postId, string memory hash) public {
         require(owner == msg.sender, "Not allowed to add post");
         Post storage post = idToPost[postId];
         post.items.push(hash);
+        emit PostAdded(postId, hash);
     }
 
     function fetchPosts() public view returns (Post[] memory) {
