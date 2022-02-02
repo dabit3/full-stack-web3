@@ -4,7 +4,10 @@ import { useRouter } from 'next/router'
 import { ethers } from 'ethers'
 import Link from 'next/link'
 
-const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+import {
+  contractAddress
+} from '../config'
+
 import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
 
 export default function Home() {
