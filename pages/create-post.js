@@ -6,12 +6,12 @@ import "easymde/dist/easymde.min.css"
 import { css } from '@emotion/css'
 import { ethers } from 'ethers'
 
-import Arweave from 'arweave'
-
-const arweave = Arweave.init({});
+import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
+import { create } from 'ipfs-http-client'
 
 const contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
-import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
+
+const client = create('https://ipfs.infura.io:5001/api/v0')
 
 // Or to specify a gateway you might use
 // const arweave = Arweave.init({
@@ -59,21 +59,12 @@ function CreatePost(props) {
     }    
   }
 
-  async function saveToArweave() {
+  async function savePostToIpfs() {
     try {
-      console.log('content: ', post.content)
-      let transaction = await arweave.createTransaction({ data: post.content })
-      await arweave.transactions.sign(transaction)
-      let uploader = await arweave.transactions.getUploader(transaction)
-
-      while (!uploader.isComplete) {
-        await uploader.uploadChunk()
-        console.log(
-          `${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`,
-        )
-      }
-      console.log('transaction:', transaction)
-      await savePost(transaction.id)
+      const added = await client.add(post)
+      const url = `https://ipfs.infura.io/ipfs/${added.path}`
+      console.log('url: ', url)
+      // await savePost(transaction.id)
     } catch (err) {
       console.log('error: ', err)
     }
@@ -88,10 +79,10 @@ function CreatePost(props) {
   function onChange(e) {
     setPost(() => ({ ...post, [e.target.name]: e.target.value }))
   }
-  async function createNewPost() {
-    await saveToArweave()
-    return
+  async function createNewPost() {   
     if (!title || !content) return
+    await savePostToIpfs()
+
     const id = uuid() 
     post.id = id
     // If there is an image uploaded, store it in S3 and add it to the post metadata

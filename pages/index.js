@@ -4,11 +4,11 @@ import { useRouter } from 'next/router'
 import { ethers } from 'ethers'
 import Link from 'next/link'
 
-const contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
 
 export default function Home() {
-  const [posts, setPosts] = useState(null)
+  const [posts, setPosts] = useState([])
   useEffect(() => {
     fetchPosts()
   }, [])
@@ -23,14 +23,12 @@ export default function Home() {
     console.log({ data })
     setPosts(data)
   }
+  console.log('posts: ', posts)
   return (
     <div>
-      <div className={titleContainer}>
-        <h2 className={titleStyle}>Posts</h2>
-      </div>
       <div className={postList}>
         {
-          posts && posts.length && posts.map((post, index) => (
+          posts.map((post, index) => (
             <Link href={`/post/${post.items[0]}`} key={index}>
               <a>
                 <div className={linkStyle}>
@@ -65,16 +63,6 @@ export default function Home() {
     </div>
   )
 }
-
-const titleContainer = css`
-  width: 900px;
-  margin: 0 auto;
-`
-
-const titleStyle = css`
-  font-size: 46px;
-  margin: 0;
-`
 
 const arrowContainer = css`
   display: flex;

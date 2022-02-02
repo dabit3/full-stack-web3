@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("Greeter", async function () {
+describe("Blog", async function () {
   
   it("Should return the new greeting once it's changed", async function () {
     const Blog = await ethers.getContractFactory("Blog");

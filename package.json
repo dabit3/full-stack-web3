@@ -1,5 +1,5 @@
 {
-  "name": "polygon-arweave-blog",
+  "name": "on-chain-blog",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,9 +12,9 @@
     "@emotion/css": "^11.5.0",
     "@openzeppelin/contracts": "^4.3.2",
     "@walletconnect/web3-provider": "^1.6.6",
-    "arweave": "^1.10.18",
     "easymde": "^2.15.0",
     "hardhat": "^2.6.7",
+    "ipfs-http-client": "^56.0.0",
     "next": "12.0.1",
     "react": "17.0.2",
     "react-dom": "17.0.2",
