@@ -13,13 +13,6 @@ const contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
 
 const client = create('https://ipfs.infura.io:5001/api/v0')
 
-// Or to specify a gateway you might use
-// const arweave = Arweave.init({
-//   host: 'arweave.net',
-//   port: 443,
-//   protocol: 'https'
-// });
-
 const SimpleMDE = dynamic(
   () => import('react-simplemde-editor'),
   { ssr: false }
@@ -30,8 +23,8 @@ const initialState = { title: '', content: '' }
 function CreatePost(props) {
   console.log('props:', props)
   const [post, setPost] = useState(initialState)
+  const fileRef = useRef(null)
   const [image, setImage] = useState(null)
-  const hiddenFileInput = useRef(null)
   const [loaded, setLoaded] = useState(false)
   const { title, content } = post
   const router = useRouter()
@@ -60,21 +53,16 @@ function CreatePost(props) {
   }
 
   async function savePostToIpfs() {
+    console.log('post:', post)
     try {
-      const added = await client.add(post)
+      const added = await client.add(JSON.stringify(post))
       const url = `https://ipfs.infura.io/ipfs/${added.path}`
       console.log('url: ', url)
-      // await savePost(transaction.id)
+      // await savePost(added.path)
     } catch (err) {
       console.log('error: ', err)
     }
   }
-
-  const options = useMemo(() => {
-    return {
-      placeholder: "What's on your mind?"
-    }
-  }, []);
 
   function onChange(e) {
     setPost(() => ({ ...post, [e.target.name]: e.target.value }))
@@ -82,6 +70,7 @@ function CreatePost(props) {
   async function createNewPost() {   
     if (!title || !content) return
     await savePostToIpfs()
+    return
 
     const id = uuid() 
     post.id = id
@@ -94,10 +83,11 @@ function CreatePost(props) {
 
     router.push(`/posts/${id}`)
   }
-  async function uploadImage() {
-    hiddenFileInput.current.click();
+  function onFileChange() {
+    fileRef.current.click()
   }
-  function handleChange (e) {
+
+  function handleFileChange (e) {
     const fileUploaded = e.target.files[0];
     if (!fileUploaded) return
     setImage(fileUploaded)
@@ -120,21 +110,29 @@ function CreatePost(props) {
         className={mdEditor}
         placeholder="What's on your mind?"
         value={post.content}
-        options={options}
         onChange={value => setPost({ ...post, content: value })}
       />
       {
         loaded && (
-          <button
-            className={button}
-            type="button"
-            onClick={createNewPost}
-          >Publish</button>
+          <>
+            <button
+              className={button}
+              type="button"
+              onClick={createNewPost}
+            >Publish</button>
+            <button onClick={onFileChange} className={button}>Add cover image</button>
+          </>
         )
       }
+
+      <input id='selectImage' className={hiddenInput} type="file" onChange={handleFileChange} ref={fileRef} />
     </div>
   )
 }
+
+const hiddenInput = css`
+  display: none;
+`
 
 const mdEditor = css`
   margin-top: 40px;

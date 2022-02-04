@@ -14,14 +14,13 @@ contract Blog {
     struct Post {
       uint id;
       string title;
-      string coverImage;
       string[] items;
     }
 
     mapping(uint => Post) private idToPost;
 
     event PostCreated(uint id, string title, string hash);
-    event PostUpdated(uint id, string title, string coverImage);
+    event PostUpdated(uint id, string title);
     event PostAdded(uint id, string hash);
     event OwnershipUpdated(address newOwner);
 
@@ -40,27 +39,22 @@ contract Blog {
         owner = newOwner;
     }
 
-    function createPost(string memory title, string memory hash, string memory coverImage) public {
+    function createPost(string memory title, string memory hash) public {
         require(owner == msg.sender, "Not allowed to create a post");
         _postIds.increment();
         uint postId = _postIds.current();
-        string[] memory items;
-        Post storage post = idToPost[postId] = Post(
-            postId,
-            title,
-            coverImage,
-            items
-        );
+        Post storage post = idToPost[postId];
+        post.title = title;
         post.items.push(hash);
         emit PostCreated(postId, title, hash);
     }
 
-    function updatePost(uint postId, string memory title, string memory coverImage) public {
+    function updatePost(uint postId, string memory title) public {
         require(owner == msg.sender, "Not allowed to update this post");
         Post storage post =  idToPost[postId];
         post.title = title;
         idToPost[postId] = post;
-        emit PostUpdated(post.id, title, coverImage);
+        emit PostUpdated(post.id, title);
     }
 
     function addPost(uint postId, string memory hash) public {
