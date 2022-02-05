@@ -38,6 +38,7 @@ describe("Blog", async function () {
     await blog.addPost(1, "23456")
 
     posts = await blog.fetchPosts()
+    console.log("Posts: ", posts)
     console.log('post items:', posts[0].items)
   });
 
@@ -54,4 +55,5 @@ describe("Blog", async function () {
     const name = await blog.name()
     console.log("Blog name: ", name)
   });
+
 });

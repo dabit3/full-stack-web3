@@ -30,6 +30,10 @@ contract Blog {
         owner = msg.sender;
     }
 
+    function getGreeting() public pure returns(string memory) {
+        return "Hello world";
+    }
+
     function updateName(string memory _name) public {
         name = _name;
     }

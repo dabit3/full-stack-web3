@@ -9,7 +9,9 @@ import { ethers } from 'ethers'
 import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
 import { create } from 'ipfs-http-client'
 
-const contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+import {
+  contractAddress
+} from '../config'
 
 const client = create('https://ipfs.infura.io:5001/api/v0')
 
@@ -44,8 +46,6 @@ function CreatePost(props) {
       try {
         const val = await contract.createPost(post.title, hash)
         console.log('val: ', val)
-        // const data = await contract.greet()
-        // console.log('data: ', data)
       } catch (err) {
         console.log("Error: ", err)
       }
@@ -58,7 +58,7 @@ function CreatePost(props) {
       const added = await client.add(JSON.stringify(post))
       const url = `https://ipfs.infura.io/ipfs/${added.path}`
       console.log('url: ', url)
-      // await savePost(added.path)
+      await savePost(added.path)
     } catch (err) {
       console.log('error: ', err)
     }
@@ -87,13 +87,21 @@ function CreatePost(props) {
     fileRef.current.click()
   }
 
-  function handleFileChange (e) {
-    const fileUploaded = e.target.files[0];
-    if (!fileUploaded) return
-    setImage(fileUploaded)
+
+  async function handleFileChange (e) {
+    const uploadedFile = e.target.files[0]
+    if (!uploadedFile) return
+    const added = await client.add(uploadedFile)
+    setPost(state => ({ ...state, coverImage: added.path }))
+    setImage(uploadedFile)
   }
   return (
     <div className={container}>
+      {
+        image && (
+          <img className={coverImageStyle} src={URL.createObjectURL(image)} />
+        )
+      }
       <input
         onChange={onChange}
         name="title"
@@ -101,11 +109,6 @@ function CreatePost(props) {
         value={post.title}
         className={titleStyle}
       /> 
-      {
-        image && (
-          <img src={URL.createObjectURL(image)} />
-        )
-      }
       <SimpleMDE
         className={mdEditor}
         placeholder="What's on your mind?"
@@ -132,6 +135,10 @@ function CreatePost(props) {
 
 const hiddenInput = css`
   display: none;
+`
+
+const coverImageStyle = css`
+  max-width: 800px;
 `
 
 const mdEditor = css`

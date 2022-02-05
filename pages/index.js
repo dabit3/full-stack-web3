@@ -12,6 +12,7 @@ import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
 
 export default function Home() {
   const [posts, setPosts] = useState([])
+  const [loadingState, setLoadingState] = useState('loading')
   useEffect(() => {
     fetchPosts()
   }, [])
@@ -21,10 +22,15 @@ export default function Home() {
   }
   async function fetchPosts() {
     const provider = new ethers.providers.JsonRpcProvider()
+
     const contract = new ethers.Contract(contractAddress, Blog.abi, provider)
     const data = await contract.fetchPosts()
     console.log({ data })
     setPosts(data)
+    setLoadingState('loaded')
+  }
+  if (loadingState === 'loading') {
+    return <h2>Loading...</h2>
   }
   console.log('posts: ', posts)
   return (

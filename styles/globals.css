@@ -34,4 +34,11 @@ a {
 
 pre {
   padding: 20px;
+  background-color: #efefef;
+}
+
+blockquote {
+  border-left: 5px solid #ddd;
+  padding-left: 20px;
+  margin-left: 0px;
 }
