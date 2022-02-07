@@ -1,13 +1,12 @@
-import { useState, useRef, useMemo, useEffect } from 'react' // new
-import { v4 as uuid } from 'uuid'
+import { useState, useRef, useContext, useEffect } from 'react' // new
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
-import "easymde/dist/easymde.min.css"
 import { css } from '@emotion/css'
 import { ethers } from 'ethers'
-
 import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
 import { create } from 'ipfs-http-client'
+import { AccountContext } from '../context'
+import "easymde/dist/easymde.min.css"
 
 import {
   contractAddress
@@ -28,6 +27,9 @@ function CreatePost(props) {
   const fileRef = useRef(null)
   const [image, setImage] = useState(null)
   const [loaded, setLoaded] = useState(false)
+  const account = useContext(AccountContext)
+  console.log('account: ', account)
+
   const { title, content } = post
   const router = useRouter()
 
@@ -37,6 +39,25 @@ function CreatePost(props) {
     }, 1000)
   }, [])
 
+  function onChange(e) {
+    setPost(() => ({ ...post, [e.target.name]: e.target.value }))
+  }
+  async function createNewPost() {   
+    if (!title || !content) return
+    const hash = await savePostToIpfs()
+    await savePost(hash)
+    router.push(`/`)
+  }
+
+  async function savePostToIpfs() {
+    try {
+      const added = await client.add(JSON.stringify(post))
+      return added.path
+    } catch (err) {
+      console.log('error: ', err)
+    }
+  }
+  
   async function savePost(hash) {
     if (typeof window.ethereum !== 'undefined') {
       const provider = new ethers.providers.Web3Provider(window.ethereum)
@@ -52,41 +73,9 @@ function CreatePost(props) {
     }    
   }
 
-  async function savePostToIpfs() {
-    console.log('post:', post)
-    try {
-      const added = await client.add(JSON.stringify(post))
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`
-      console.log('url: ', url)
-      await savePost(added.path)
-    } catch (err) {
-      console.log('error: ', err)
-    }
-  }
-
-  function onChange(e) {
-    setPost(() => ({ ...post, [e.target.name]: e.target.value }))
-  }
-  async function createNewPost() {   
-    if (!title || !content) return
-    await savePostToIpfs()
-    return
-
-    const id = uuid() 
-    post.id = id
-    // If there is an image uploaded, store it in S3 and add it to the post metadata
-    if (image) {
-      const fileName = `${image.name}_${uuid()}`
-      post.coverImage = fileName
-      await Storage.put(fileName, image)
-    }
-
-    router.push(`/posts/${id}`)
-  }
   function onFileChange() {
     fileRef.current.click()
   }
-
 
   async function handleFileChange (e) {
     const uploadedFile = e.target.files[0]
@@ -95,6 +84,7 @@ function CreatePost(props) {
     setPost(state => ({ ...state, coverImage: added.path }))
     setImage(uploadedFile)
   }
+
   return (
     <div className={container}>
       {

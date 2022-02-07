@@ -5,6 +5,10 @@ import { css } from '@emotion/css'
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import WalletConnectProvider from '@walletconnect/web3-provider'
+import { AccountContext } from '../context.js'
+
+const adminAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+// console.log('AccountContext: ', AccountContext)
 
 function MyApp({ Component, pageProps }) {
   const [account, setAccount] = useState(null)
@@ -31,6 +35,7 @@ function MyApp({ Component, pageProps }) {
     const accounts = await provider.listAccounts()
     setAccount(accounts[0])
   }
+  console.log('account from app: ', account)
   return (
     <div>
       <nav className={nav}>
@@ -59,6 +64,9 @@ function MyApp({ Component, pageProps }) {
               </div>
             )
           }
+          {
+            account && <p className={accountInfo}>{account}</p>
+          }
         </div>
         <div className={linkContainer}>
           <Link href="/" >
@@ -66,19 +74,33 @@ function MyApp({ Component, pageProps }) {
               Home
             </a>
           </Link>
-          <Link href="/create-post">
-            <a className={link}>
-              Create Post
-            </a>
-          </Link>
+          {
+            (account === adminAddress) && (
+              <Link href="/create-post">
+                <a className={link}>
+                  Create Post
+                </a>
+              </Link>
+            )
+          }
         </div>
       </nav>
       <div className={container}>
-        <Component {...pageProps} connect={connect} account={account} />
+        <AccountContext.Provider value={account}>
+          <Component {...pageProps} connect={connect} />
+        </AccountContext.Provider>
       </div>
     </div>
   )
 }
+
+const accountInfo = css`
+  width: 100%;
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  font-size: 12px;
+`
 
 const container = css`
   padding: 40px;

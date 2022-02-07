@@ -1,15 +1,31 @@
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import ReactMarkdown from 'react-markdown'
 import { css } from '@emotion/css'
-import { ethers } from 'ethers'
-
-import {
-  contractAddress
-} from '../../config'
-import Blog from '../../artifacts/contracts/Blog.sol/Blog.json'
 
 const ipfsURI = "https://ipfs.io/ipfs/"
 
-export default function Post({ post }) {
+export default function Post() {
+  const [post, setPost] = useState(null)
+  const router = useRouter()
+  const { id } = router.query
+  console.log('router: ', router)
+  useEffect(() => {
+    fetchPost()
+  }, [id])
+  async function fetchPost() {
+    if (!id) return
+    const ipfsUrl = `${ipfsURI}/${id}`
+    const response = await fetch(ipfsUrl)
+    const data = await response.json()
+    if(data.coverImage) {
+      let coverImage = `${ipfsURI}/${data.coverImage}`
+      data.coverImage = coverImage
+    }
+    console.log('data:', data)
+    setPost(data)
+  }
+  if (!post) return null
   return (
     <div>
       {
@@ -32,37 +48,6 @@ export default function Post({ post }) {
       }
     </div>
   )
-}
-
-export async function getStaticPaths() {
-  const provider = new ethers.providers.JsonRpcProvider()
-
-  const contract = new ethers.Contract(contractAddress, Blog.abi, provider)
-  const data = await contract.fetchPosts()
-
-  const paths = data.map(d => ({ params: { id: d[2][0] } }))
-
-  return {
-    paths,
-    fallback: true
-  };
-}
-
-export async function getStaticProps({ params }) {
-  const { id } = params
-  const ipfsUrl = `${ipfsURI}/${id}`
-  const response = await fetch(ipfsUrl)
-  const data = await response.json()
-  if(data.coverImage) {
-    let coverImage = `${ipfsURI}/${data.coverImage}`
-    data.coverImage = coverImage
-  }
-
-  return {
-    props: {
-      post: data
-    },
-  }
 }
 
 const coverImageStyle = css`

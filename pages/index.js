@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { css } from '@emotion/css'
 import { useRouter } from 'next/router'
 import { ethers } from 'ethers'
@@ -10,35 +9,20 @@ import {
 
 import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
 
-export default function Home() {
-  const [posts, setPosts] = useState([])
-  const [loadingState, setLoadingState] = useState('loading')
-  useEffect(() => {
-    fetchPosts()
-  }, [])
+export default function Home(props) {
+  const { posts } = props
+
   const router = useRouter()
   async function navigate() {
     router.push('/create-post')
   }
-  async function fetchPosts() {
-    const provider = new ethers.providers.JsonRpcProvider()
 
-    const contract = new ethers.Contract(contractAddress, Blog.abi, provider)
-    const data = await contract.fetchPosts()
-    console.log({ data })
-    setPosts(data)
-    setLoadingState('loaded')
-  }
-  if (loadingState === 'loading') {
-    return <h2>Loading...</h2>
-  }
-  console.log('posts: ', posts)
   return (
     <div>
       <div className={postList}>
         {
           posts.map((post, index) => (
-            <Link href={`/post/${post.items[0]}`} key={index}>
+            <Link href={`/post/${post[2][0]}`} key={index}>
               <a>
                 <div className={linkStyle}>
                   <p className={postTitle}>{post[1]}</p>
@@ -71,6 +55,18 @@ export default function Home() {
       </div>
     </div>
   )
+}
+
+export async function getServerSideProps() {
+  const provider = new ethers.providers.JsonRpcProvider()
+
+  const contract = new ethers.Contract(contractAddress, Blog.abi, provider)
+  const data = await contract.fetchPosts()
+  return {
+    props: {
+      posts: JSON.parse(JSON.stringify(data))
+    }
+  }
 }
 
 const arrowContainer = css`

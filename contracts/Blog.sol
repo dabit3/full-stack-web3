@@ -15,6 +15,7 @@ contract Blog {
       uint id;
       string title;
       string[] items;
+      bool published;
     }
 
     mapping(uint => Post) private idToPost;
@@ -48,15 +49,18 @@ contract Blog {
         _postIds.increment();
         uint postId = _postIds.current();
         Post storage post = idToPost[postId];
+        post.id = postId;
         post.title = title;
+        post.published = true;
         post.items.push(hash);
         emit PostCreated(postId, title, hash);
     }
 
-    function updatePost(uint postId, string memory title) public {
+    function updatePost(uint postId, string memory title, bool published) public {
         require(owner == msg.sender, "Not allowed to update this post");
         Post storage post =  idToPost[postId];
         post.title = title;
+        post.published = published;
         idToPost[postId] = post;
         emit PostUpdated(post.id, title);
     }
