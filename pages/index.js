@@ -19,6 +19,7 @@ export default function Home(props) {
   async function navigate() {
     router.push('/create-post')
   }
+  console.log('posts: ', posts)
 
   return (
     <div>

@@ -22,7 +22,7 @@ contract Blog {
     mapping(string => Post) private hashToPost;
 
     event PostCreated(uint id, string title, string hash);
-    event PostUpdated(uint id, string title, string hash, bool updated);
+    event PostUpdated(uint id, string title, string hash, bool published);
 
     constructor(string memory _name) {
         console.log("Deploying Blog with name:", _name);

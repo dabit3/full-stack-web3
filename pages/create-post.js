@@ -64,6 +64,7 @@ function CreatePost() {
       console.log('contract: ', contract)
       try {
         const val = await contract.createPost(post.title, hash)
+        // await provider.waitForTransaction(val.hash)
         console.log('val: ', val)
       } catch (err) {
         console.log("Error: ", err)
