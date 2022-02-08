@@ -6,9 +6,8 @@ import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { AccountContext } from '../context.js'
-
-const adminAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-// console.log('AccountContext: ', AccountContext)
+import { ownerAddress } from '../config'
+import "easymde/dist/easymde.min.css"
 
 function MyApp({ Component, pageProps }) {
   const [account, setAccount] = useState(null)
@@ -75,7 +74,7 @@ function MyApp({ Component, pageProps }) {
             </a>
           </Link>
           {
-            (account === adminAddress) && (
+            (account === ownerAddress) && (
               <Link href="/create-post">
                 <a className={link}>
                   Create Post

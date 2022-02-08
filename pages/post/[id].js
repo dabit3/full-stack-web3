@@ -1,20 +1,39 @@
 import ReactMarkdown from 'react-markdown'
+import { useContext } from 'react'
+import { useRouter } from 'next/router'
+import Link from 'next/link'
 import { css } from '@emotion/css'
 import { ethers } from 'ethers'
+import { AccountContext } from '../../context'
 
 import {
-  contractAddress
+  contractAddress, ownerAddress
 } from '../../config'
 import Blog from '../../artifacts/contracts/Blog.sol/Blog.json'
 
 const ipfsURI = "https://ipfs.io/ipfs/"
 
 export default function Post({ post }) {
+  const account = useContext(AccountContext)
+  const router = useRouter()
+  const { id } = router.query
+
   return (
     <div>
       {
         post && (
           <div className={container}>
+            {
+              ownerAddress === account && (
+                <div className={editPost}>
+                  <Link href={`/edit-post/${id}`}>
+                    <a>
+                      Edit post
+                    </a>
+                  </Link>
+                </div>
+              )
+            }
             {
               post.coverImage && (
                 <img
@@ -35,7 +54,12 @@ export default function Post({ post }) {
 }
 
 export async function getStaticPaths() {
-  const provider = new ethers.providers.JsonRpcProvider()
+  let provider
+  if (process.env.ENVIRONMENT === "testing") {
+    provider = new ethers.providers.JsonRpcProvider()
+  } else {
+    provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com")
+  }
 
   const contract = new ethers.Contract(contractAddress, Blog.abi, provider)
   const data = await contract.fetchPosts()
@@ -64,6 +88,10 @@ export async function getStaticProps({ params }) {
     },
   }
 }
+
+const editPost = css`
+  margin: 20px 0px;
+`
 
 const coverImageStyle = css`
   width: 900px;

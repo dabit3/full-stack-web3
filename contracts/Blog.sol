@@ -14,11 +14,12 @@ contract Blog {
     struct Post {
       uint id;
       string title;
-      string[] items;
+      string content;
       bool published;
     }
 
     mapping(uint => Post) private idToPost;
+    mapping(string => Post) private hashToPost;
 
     event PostCreated(uint id, string title, string hash);
     event PostUpdated(uint id, string title);
@@ -39,37 +40,34 @@ contract Blog {
         name = _name;
     }
 
-    function transferOwnership(address newOwner) public {
-        require(owner == msg.sender, "Not allowed to update owner");
+    function transferOwnership(address newOwner) public onlyOwner {
         owner = newOwner;
     }
 
-    function createPost(string memory title, string memory hash) public {
-        require(owner == msg.sender, "Not allowed to create a post");
+    function fetchPost(string memory hash) public view returns(Post memory){
+      return hashToPost[hash];
+    }
+
+    function createPost(string memory title, string memory hash) public onlyOwner {
         _postIds.increment();
         uint postId = _postIds.current();
         Post storage post = idToPost[postId];
         post.id = postId;
         post.title = title;
         post.published = true;
-        post.items.push(hash);
+        post.content = hash;
+        hashToPost[hash] = post;
         emit PostCreated(postId, title, hash);
     }
 
-    function updatePost(uint postId, string memory title, bool published) public {
-        require(owner == msg.sender, "Not allowed to update this post");
+    function updatePost(uint postId, string memory title, string memory hash, bool published) public onlyOwner {
         Post storage post =  idToPost[postId];
         post.title = title;
         post.published = published;
+        post.content = hash;
         idToPost[postId] = post;
+        hashToPost[hash] = post;
         emit PostUpdated(post.id, title);
-    }
-
-    function addPost(uint postId, string memory hash) public {
-        require(owner == msg.sender, "Not allowed to add post");
-        Post storage post = idToPost[postId];
-        post.items.push(hash);
-        emit PostAdded(postId, hash);
     }
 
     function fetchPosts() public view returns (Post[] memory) {
@@ -85,4 +83,9 @@ contract Blog {
         }
         return posts;
     }
+
+    modifier onlyOwner() {
+      require(msg.sender == owner);
+    _;
+}
 }

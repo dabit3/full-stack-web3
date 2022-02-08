@@ -6,7 +6,6 @@ import { ethers } from 'ethers'
 import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
 import { create } from 'ipfs-http-client'
 import { AccountContext } from '../context'
-import "easymde/dist/easymde.min.css"
 
 import {
   contractAddress
@@ -21,8 +20,7 @@ const SimpleMDE = dynamic(
 
 const initialState = { title: '', content: '' }
 
-function CreatePost(props) {
-  console.log('props:', props)
+function CreatePost() {
   const [post, setPost] = useState(initialState)
   const fileRef = useRef(null)
   const [image, setImage] = useState(null)
@@ -98,7 +96,7 @@ function CreatePost(props) {
         placeholder="Give it a title ..."
         value={post.title}
         className={titleStyle}
-      /> 
+      />
       <SimpleMDE
         className={mdEditor}
         placeholder="What's on your mind?"

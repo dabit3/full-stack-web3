@@ -1,16 +1,19 @@
 import { css } from '@emotion/css'
+import { useContext } from 'react'
 import { useRouter } from 'next/router'
 import { ethers } from 'ethers'
 import Link from 'next/link'
+import { AccountContext } from '../context'
 
 import {
-  contractAddress
+  contractAddress, ownerAddress
 } from '../config'
 
 import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
 
 export default function Home(props) {
   const { posts } = props
+  const account = useContext(AccountContext)
 
   const router = useRouter()
   async function navigate() {
@@ -22,7 +25,7 @@ export default function Home(props) {
       <div className={postList}>
         {
           posts.map((post, index) => (
-            <Link href={`/post/${post[2][0]}`} key={index}>
+            <Link href={`/post/${post[2]}`} key={index}>
               <a>
                 <div className={linkStyle}>
                   <p className={postTitle}>{post[1]}</p>
@@ -41,7 +44,7 @@ export default function Home(props) {
       </div>
       <div className={container}>
         {
-          posts && !posts.length && (
+          (account === ownerAddress) && posts && !posts.length && (
             <button className={buttonStyle} onClick={navigate}>
               Create your first post
               <img
@@ -58,7 +61,12 @@ export default function Home(props) {
 }
 
 export async function getServerSideProps() {
-  const provider = new ethers.providers.JsonRpcProvider()
+  let provider
+  if (process.env.ENVIRONMENT === "testing") {
+    provider = new ethers.providers.JsonRpcProvider()
+  } else {
+    provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com")
+  }
 
   const contract = new ethers.Contract(contractAddress, Blog.abi, provider)
   const data = await contract.fetchPosts()
