@@ -18,7 +18,7 @@ function MyApp({ Component, pageProps }) {
       providerOptions: {
         walletconnect: {
           package: WalletConnectProvider,
-          options: {
+          options: { 
             infuraId: process.env.NEXT_PUBLIC_INFURA_ID
           },
         },
@@ -28,11 +28,15 @@ function MyApp({ Component, pageProps }) {
   }
 
   async function connect() {
-    const web3Modal = await getWeb3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const accounts = await provider.listAccounts()
-    setAccount(accounts[0])
+    try {
+      const web3Modal = await getWeb3Modal()
+      const connection = await web3Modal.connect()
+      const provider = new ethers.providers.Web3Provider(connection)
+      const accounts = await provider.listAccounts()
+      setAccount(accounts[0])
+    } catch (err) {
+      console.log('error:', err)
+    }
   }
   console.log('account from app: ', account)
   return (

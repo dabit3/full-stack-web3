@@ -17,21 +17,22 @@ contract Blog {
       string content;
       bool published;
     }
-
+    /* mappings can be seen as hash tables */
+    /* here we create lookups for posts by id and posts by ipfs hash */
     mapping(uint => Post) private idToPost;
     mapping(string => Post) private hashToPost;
 
+    /* events facilitate communication between smart contractsand their user interfaces  */
+    /* i.e. we can create listeners for events in the client and use them in The Graph  */
     event PostCreated(uint id, string title, string hash);
     event PostUpdated(uint id, string title, string hash, bool published);
 
+    /* when the blog is deployed, give it a name */
+    /* also set the creator as the owner of the contract */
     constructor(string memory _name) {
         console.log("Deploying Blog with name:", _name);
         name = _name;
         owner = msg.sender;
-    }
-
-    function getGreeting() public pure returns(string memory) {
-        return "Hello world";
     }
 
     function updateName(string memory _name) public {
@@ -42,10 +43,12 @@ contract Blog {
         owner = newOwner;
     }
 
+    /* fetches an individual post by the content hash */
     function fetchPost(string memory hash) public view returns(Post memory){
       return hashToPost[hash];
     }
 
+    /* creates a new post */
     function createPost(string memory title, string memory hash) public onlyOwner {
         _postIds.increment();
         uint postId = _postIds.current();
@@ -58,6 +61,7 @@ contract Blog {
         emit PostCreated(postId, title, hash);
     }
 
+    /* updates an existing post */
     function updatePost(uint postId, string memory title, string memory hash, bool published) public onlyOwner {
         Post storage post =  idToPost[postId];
         post.title = title;
@@ -68,6 +72,7 @@ contract Blog {
         emit PostUpdated(post.id, title, hash, published);
     }
 
+    /* fetches all posts */
     function fetchPosts() public view returns (Post[] memory) {
         uint itemCount = _postIds.current();
         uint currentIndex = 0;
@@ -82,8 +87,10 @@ contract Blog {
         return posts;
     }
 
+    /* this modifier means only the contract owner can */
+    /* invoke the function */
     modifier onlyOwner() {
       require(msg.sender == owner);
     _;
-}
+  }
 }
