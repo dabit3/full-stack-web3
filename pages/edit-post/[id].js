@@ -32,10 +32,12 @@ export default function Post() {
     if (!id) return
     let provider
     console.log('process env :', process.env)
-    if (process.env.NEXT_PUBLIC_ENVIRONMENT === "testing") {
+    if (process.env.NEXT_PUBLIC_ENVIRONMENT === "local") {
       provider = new ethers.providers.JsonRpcProvider()
-    } else {
+    } else if (process.env.NEXT_PUBLIC_ENVIRONMENT === "testing") {
       provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com")
+    } else {
+      provider = new ethers.providers.JsonRpcProvider("https://rpc-mainnet.maticvigil.com")
     }
     const contract = new ethers.Contract(contractAddress, Blog.abi, provider)
     const val = await contract.fetchPost(id)

@@ -12,6 +12,8 @@ import {
 import Blog from '../artifacts/contracts/Blog.sol/Blog.json'
 
 export default function Home(props) {
+  /* posts are fetched server side and passed in as props */
+  /* see getServerSideProps */
   const { posts } = props
   const account = useContext(AccountContext)
 
@@ -19,12 +21,12 @@ export default function Home(props) {
   async function navigate() {
     router.push('/create-post')
   }
-  console.log('posts: ', posts)
 
   return (
     <div>
       <div className={postList}>
         {
+          /* map over the posts array and render a button with the post title */
           posts.map((post, index) => (
             <Link href={`/post/${post[2]}`} key={index}>
               <a>
@@ -33,7 +35,7 @@ export default function Home(props) {
                   <div className={arrowContainer}>
                   <img
                       src='/right-arrow.svg'
-                      alt="Right arrow"
+                      alt='Right arrow'
                       className={smallArrow}
                     />
                   </div>
@@ -46,11 +48,13 @@ export default function Home(props) {
       <div className={container}>
         {
           (account === ownerAddress) && posts && !posts.length && (
+            /* if the signed in user is the account owner, render a button */
+            /* to create the first post */
             <button className={buttonStyle} onClick={navigate}>
               Create your first post
               <img
                 src='/right-arrow.svg'
-                alt="Right arrow"
+                alt='Right arrow'
                 className={arrow}
               />
             </button>
@@ -62,11 +66,15 @@ export default function Home(props) {
 }
 
 export async function getServerSideProps() {
+  /* here we check to see the current environment variable */
+  /* and render a provider based on the environment we're in */
   let provider
-  if (process.env.ENVIRONMENT === "testing") {
+  if (process.env.ENVIRONMENT === 'local') {
     provider = new ethers.providers.JsonRpcProvider()
+  } else if (process.env.ENVIRONMENT === 'testing') {
+    provider = new ethers.providers.JsonRpcProvider('https://rpc-mumbai.maticvigil.com')
   } else {
-    provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com")
+    provider = new ethers.providers.JsonRpcProvider('https://rpc-mainnet.maticvigil.com')
   }
 
   const contract = new ethers.Contract(contractAddress, Blog.abi, provider)

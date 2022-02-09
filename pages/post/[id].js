@@ -55,10 +55,12 @@ export default function Post({ post }) {
 
 export async function getStaticPaths() {
   let provider
-  if (process.env.ENVIRONMENT === "testing") {
+  if (process.env.ENVIRONMENT === "local") {
     provider = new ethers.providers.JsonRpcProvider()
-  } else {
+  } else if (process.env.ENVIRONMENT === "testing") {
     provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com")
+  } else {
+    provider = new ethers.providers.JsonRpcProvider("https://rpc-mainnet.maticvigil.com")
   }
 
   const contract = new ethers.Contract(contractAddress, Blog.abi, provider)
