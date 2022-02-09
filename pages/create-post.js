@@ -26,7 +26,6 @@ function CreatePost() {
   const [image, setImage] = useState(null)
   const [loaded, setLoaded] = useState(false)
   const account = useContext(AccountContext)
-  console.log('account: ', account)
 
   const { title, content } = post
   const router = useRouter()
@@ -67,7 +66,7 @@ function CreatePost() {
         // await provider.waitForTransaction(val.hash)
         console.log('val: ', val)
       } catch (err) {
-        console.log("Error: ", err)
+        console.log('Error: ', err)
       }
     }    
   }
@@ -93,8 +92,8 @@ function CreatePost() {
       }
       <input
         onChange={onChange}
-        name="title"
-        placeholder="Give it a title ..."
+        name='title'
+        placeholder='Give it a title ...'
         value={post.title}
         className={titleStyle}
       />
@@ -109,7 +108,7 @@ function CreatePost() {
           <>
             <button
               className={button}
-              type="button"
+              type='button'
               onClick={createNewPost}
             >Publish</button>
             <button onClick={onFileChange} className={button}>Add cover image</button>
@@ -117,7 +116,7 @@ function CreatePost() {
         )
       }
 
-      <input id='selectImage' className={hiddenInput} type="file" onChange={handleFileChange} ref={fileRef} />
+      <input id='selectImage' className={hiddenInput} type='file' onChange={handleFileChange} ref={fileRef} />
     </div>
   )
 }
