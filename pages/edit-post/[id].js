@@ -11,7 +11,7 @@ import {
 } from '../../config'
 import Blog from '../../artifacts/contracts/Blog.sol/Blog.json'
 
-const ipfsURI = "https://ipfs.io/ipfs/"
+const ipfsURI = 'https://ipfs.io/ipfs/'
 const client = create('https://ipfs.infura.io:5001/api/v0')
 
 const SimpleMDE = dynamic(
@@ -29,20 +29,21 @@ export default function Post() {
     fetchPost()
   }, [id])
   async function fetchPost() {
+    /* we first fetch the individual post by ipfs hash from the network */
     if (!id) return
     let provider
-    console.log('process env :', process.env)
-    if (process.env.NEXT_PUBLIC_ENVIRONMENT === "local") {
+    if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'local') {
       provider = new ethers.providers.JsonRpcProvider()
-    } else if (process.env.NEXT_PUBLIC_ENVIRONMENT === "testing") {
-      provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com")
+    } else if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'testnet') {
+      provider = new ethers.providers.JsonRpcProvider('https://rpc-mumbai.matic.today')
     } else {
-      provider = new ethers.providers.JsonRpcProvider("https://rpc-mainnet.maticvigil.com")
+      provider = new ethers.providers.JsonRpcProvider('https://polygon-rpc.com/')
     }
     const contract = new ethers.Contract(contractAddress, Blog.abi, provider)
     const val = await contract.fetchPost(id)
     const postId = val[0].toNumber()
 
+    /* next we fetch the IPFS metadata from the network */
     const ipfsUrl = `${ipfsURI}/${id}`
     const response = await fetch(ipfsUrl)
     const data = await response.json()
@@ -50,13 +51,13 @@ export default function Post() {
       let coverImagePath = `${ipfsURI}/${data.coverImage}`
       data.coverImagePath = coverImagePath
     }
+    /* finally we append the post ID to the post data */
+    /* we need this ID to make updates to the post */
     data.id = postId;
-    console.log('data:', data)
     setPost(data)
   }
 
   async function savePostToIpfs() {
-    console.log('post: ', post)
     try {
       const added = await client.add(JSON.stringify(post))
       return added.path
@@ -73,18 +74,22 @@ export default function Post() {
     await contract.updatePost(post.id, post.title, hash, true)
     router.push('/')
   }
-  
+
   if (!post) return null
-  console.log('post: ', post)
+
   return (
     <div className={container}>
+      {
+      /* editing state will allow the user to toggle between */
+      /*  a markdown editor and a markdown renderer */
+      }
       {
         editing && (
           <div>
             <input
               onChange={e => setPost({ ...post, title: e.target.value })}
-              name="title"
-              placeholder="Give it a title ..."
+              name='title'
+              placeholder='Give it a title ...'
               value={post.title}
               className={titleStyle}
             />
@@ -116,7 +121,7 @@ export default function Post() {
           </div>
         )
       }
-      <button className={button} onClick={() => setEditing(editing ? false : true)}>{ editing ? "View post" : "Edit post"}</button>
+      <button className={button} onClick={() => setEditing(editing ? false : true)}>{ editing ? 'View post' : 'Edit post'}</button>
     </div>
   )
 }
