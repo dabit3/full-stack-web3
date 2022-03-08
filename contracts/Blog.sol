@@ -75,14 +75,12 @@ contract Blog {
     /* fetches all posts */
     function fetchPosts() public view returns (Post[] memory) {
         uint itemCount = _postIds.current();
-        uint currentIndex = 0;
 
         Post[] memory posts = new Post[](itemCount);
         for (uint i = 0; i < itemCount; i++) {
             uint currentId = i + 1;
             Post storage currentItem = idToPost[currentId];
-            posts[currentIndex] = currentItem;
-            currentIndex += 1;
+            posts[i] = currentItem;
         }
         return posts;
     }
